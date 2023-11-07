@@ -1,9 +1,6 @@
 from __future__ import annotations
 from typing import overload
 
-
-
-
 FILES = ["a","b","c","d","e","f","g","h"]
 RANKS = [1,2,3,4,5,6,7,8]
 
@@ -45,7 +42,7 @@ class AN:
         return f"AN({self._cord})"
     
     def __repr__(self) -> str:
-        return self.__str__
+        return self.__str__()
     
     @overload
     @staticmethod
@@ -70,16 +67,80 @@ class AN:
         return True
     
     def left(self) -> AN: 
-        pass
+        if self.file == FILES[0]:
+            raise ChessNotationError
+        return AN(FILES[FILES.index(self.file)-1], self.rank)
     
     def right(self) -> AN:
-        pass
+        if self.file == FILES[len(FILES)-1]:
+            raise ChessNotationError
+        return AN(FILES[FILES.index(self.file)+1], self.rank)
 
-    def over(self) -> Self: 
-        pass
+    def over(self) -> AN: 
+        if self.rank == RANKS[len(RANKS)-1]:
+            raise ChessNotationError
+        return AN(self.file, RANKS[RANKS.index(self.rank)+1])
 
-    def under(sekf) -> Self: 
-        pass
+    def under(self) -> AN: 
+        if self.rank == RANKS[0]:
+            raise ChessNotationError
+        return AN(self.file, RANKS[RANKS.index(self.rank)-1])
+    
+    def rel_coords(self, deltas: list[tuple[int, int]]) -> list[AN]: 
+        for delta in deltas: 
+            try: 
+                pass  
+
+            except IndexError: 
+                pass
+
+
+    def horizontal(self) -> list[AN]: 
+        return [AN(file, self.rank) for file in FILES]
+    
+    def vertical(self) -> list[AN]: 
+        return [AN(self.file, rank) for rank in RANKS]
+    
+    def diagonal(self, topright: bool) -> list[AN]:
+        coords: list[AN] = []
+
+        if topright: 
+            try: 
+                current_cord = self
+                while True: 
+                    current_cord = current_cord.over().right()
+                    coords.append(current_cord)
+                    
+            except ChessNotationError: pass
+
+            try: 
+                current_cord = self
+                while True: 
+                    current_cord = current_cord.under().left()
+                    coords.append(current_cord)
+
+            except ChessNotationError: pass 
+        else: 
+            try: 
+                current_cord = self
+                while True: 
+                    current_cord = current_cord.over().left()
+                    coords.append(current_cord)
+                    
+            except ChessNotationError: pass
+
+            try: 
+                current_cord = self
+                while True: 
+                    current_cord = current_cord.under().right()
+                    coords.append(current_cord)
+
+            except ChessNotationError: pass 
+            
+        return coords
+
+    def diagonals(self) -> list[AN]: 
+        return self.diagonal(True).extend(self.diagonal(False))
 
     @property
     def cord(self) -> str: 
@@ -108,11 +169,6 @@ class AN:
     def rank(self, val: int) -> None: 
         if val in RANKS: 
             self._cord = self._cord[0] + str(val) 
-    
-coord1 = AN("a1")
+ 
 
-coord1.rank += 1
-coord1.file += ""
-coord1.left().right()
-
-print(coord1)
+AN.relCoords([(1, 0), (0, 0)])
