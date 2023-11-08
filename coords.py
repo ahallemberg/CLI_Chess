@@ -7,12 +7,22 @@ RANKS = [1,2,3,4,5,6,7,8]
 class ChessNotationError(Exception):
     pass
 
+class File(str) :
+    def __add__(self, other: int) -> None: 
+        try: 
+            if FILES.index(self)+other > len(FILES)-1 or  FILES.index(self)+other < 0: 
+                raise ChessNotationError
+            
+            return FILES[FILES.index(self)+other]
+        except IndexError:
+            raise ChessNotationError
+
 class AN:
     """ 
     Algebraic notation for sjakk
     """
     @overload
-    def __init__(self, cord: str) -> None: ...
+    def __init__(self, coord: str) -> None: ...
     
     @overload
     def __init__(self, file: str, rank: int) -> None: ... 
@@ -21,25 +31,25 @@ class AN:
         if len(file) == 2: 
             if not self.valid_notation(file):
                 raise ChessNotationError(f"{file} er en ugyldig algebraisk sjakknotasjon")
-            self._cord = file
+            self._coord = file
 
         elif len(file) == 1: 
             if not self.valid_notation(file, rank):
                 raise ChessNotationError(f"file: {file}, rank: {rank} er en ugyldig algebraisk sjakknotasjon")
         
-            self._cord = f"{file}{rank}"
+            self._coord = f"{file}{rank}"
             
         else: 
             raise ChessNotationError
      
     def __hash__(self) -> int:
-        return hash(self._cord+"__AN")
+        return hash(self._coord+"__AN")
     
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, AN) and self._cord == other.cord
+        return isinstance(other, AN) and self._coord == other.coord
     
     def __str__(self) -> str: 
-        return f"AN({self._cord})"
+        return f"AN({self._coord})"
     
     def __repr__(self) -> str:
         return self.__str__()
@@ -50,7 +60,7 @@ class AN:
 
     @overload
     @staticmethod
-    def valid_notation(cord: str) -> bool: ...
+    def valid_notation(coord: str) -> bool: ...
     
     @staticmethod
     def valid_notation(file: str, rank: int|None=None) -> bool: 
@@ -86,14 +96,19 @@ class AN:
             raise ChessNotationError
         return AN(self.file, RANKS[RANKS.index(self.rank)-1])
     
-    def rel_coords(self, deltas: list[tuple[int, int]]) -> list[AN]: 
+    def rel_coords(self, *deltas: tuple[int, int]) -> list[AN]: 
+        coords: list[AN] = []
         for delta in deltas: 
             try: 
-                pass  
+                new_coord = AN(self.coord)
+                new_coord.file += delta[0]
+                new_coord.rank += delta[1]
+                coords.append(new_coord)
 
-            except IndexError: 
+            except ChessNotationError: 
                 pass
-
+        
+        return coords
 
     def horizontal(self) -> list[AN]: 
         return [AN(file, self.rank) for file in FILES]
@@ -106,34 +121,34 @@ class AN:
 
         if topright: 
             try: 
-                current_cord = self
+                current_coord = self
                 while True: 
-                    current_cord = current_cord.over().right()
-                    coords.append(current_cord)
+                    current_coord = current_coord.over().right()
+                    coords.append(current_coord)
                     
             except ChessNotationError: pass
 
             try: 
-                current_cord = self
+                current_coord = self
                 while True: 
-                    current_cord = current_cord.under().left()
-                    coords.append(current_cord)
+                    current_coord = current_coord.under().left()
+                    coords.append(current_coord)
 
             except ChessNotationError: pass 
         else: 
             try: 
-                current_cord = self
+                current_coord = self
                 while True: 
-                    current_cord = current_cord.over().left()
-                    coords.append(current_cord)
+                    current_coord = current_coord.over().left()
+                    coords.append(current_coord)
                     
             except ChessNotationError: pass
 
             try: 
-                current_cord = self
+                current_coord = self
                 while True: 
-                    current_cord = current_cord.under().right()
-                    coords.append(current_cord)
+                    current_coord = current_coord.under().right()
+                    coords.append(current_coord)
 
             except ChessNotationError: pass 
             
@@ -143,32 +158,29 @@ class AN:
         return self.diagonal(True).extend(self.diagonal(False))
 
     @property
-    def cord(self) -> str: 
-        return self._cord
+    def coord(self) -> str: 
+        return self._coord
 
-    @cord.setter
-    def cord(self, val: str) -> None: 
+    @coord.setter
+    def coord(self, val: str) -> None: 
         if not self.valid_notation(val):
             raise ChessNotationError(f"{val} er en ugyldig algebraisk sjakknotasjon")
-        self._cord = val
+        self._coord = val
         
     @property
     def file(self) -> str: 
-        return self._cord[0]
+        return File(self._coord[0])
 
     @file.setter 
     def file(self, val: str) -> None: 
         if val in FILES: 
-            self._cord = val + self._cord[1]
+            self._coord = val + self._coord[1]
     
     @property 
     def rank(self) -> int:
-        return int(self._cord[1])
+        return int(self._coord[1])
 
     @rank.setter
     def rank(self, val: int) -> None: 
         if val in RANKS: 
-            self._cord = self._cord[0] + str(val) 
- 
-
-AN.relCoords([(1, 0), (0, 0)])
+            self._coord = self._coord[0] + str(val) 

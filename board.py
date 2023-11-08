@@ -89,7 +89,7 @@ class Board:
                     print("\n"+"  "+"-"*16)
                 
 def check(board: dict[AN, Piece]) -> None|int: 
-    pass 
+    return None
 
 def checkmate(board: dict[AN, Piece]) -> None|int:
-    pass
+    return None

@@ -23,43 +23,11 @@ class Piece(ABC):
 class King(Piece): 
     def possible_moves(self, board: dict[AN, Piece], coord: AN) -> list[AN]:
         coords: list[AN] = []
-        try: 
-            left: Piece = board[coord.left()]
-            right: Piece = board[coord.right()] 
-            over: Piece = board[coord.over()]
-            under: Piece = board[coord.under()]
-            over_right: Piece = board[coord.over().right()]
-            over_left: Piece = board[coord.over().left()]
-            under_right: Piece = board[coord.under().right()]
-            under_left: Piece = board[coord.under().left()]
-            
-            if left.player != self.player or isinstance(Empty, left):
-                coords.append(coord.left())
-            
-            if right.player != self.player or isinstance(Empty, right):
-                coords.append(coord.right())
-            
-            if over.player != self.player or isinstance(Empty, over): 
-                coords.append(coord.over())
-            
-            if under.player != self.player or isinstance(Empty, under):
-                coords.append(coord.under()) 
-
-            if over_right.player != self.player or isinstance(Empty, over_right): 
-                coords.append(coord.over().right())
-            
-            if over_left.player != self.player or isinstance(Empty, over_left):
-                coords.append(over_left)
-            if under_right.player != self.player or isinstance(Empty, under_right): 
-                coords.append(under_right)
-
-            if under_left.player != self.player or isinstance(Empty, under_left):
-                coords.append(under_left)
-            
-            return coords
-            
-        except ChessNotationError: 
-            pass
+        for c_coord in coord.rel_coords((0, 1), (1,1), (-1, 1), (-1, 0), (1, 0), (0, -1), (-1,-1), (1, -1)): 
+            print(c_coord)
+            if board[c_coord].player != self.player: 
+                coords.append(c_coord)
+        return coords
 
     def __str__(self) -> str: 
         if self._player == 0: 
@@ -74,7 +42,7 @@ class Rook(Piece):
 
         # check horozontal and diagonals
         for c_coord in coord.horizontal().extend(coord.vertical()): 
-            if self.player != board[c_coord].player or isinstance(board[c_coord], Empty): 
+            if self.player != board[c_coord].player: 
                 coords.append(c_coord)
 
     def __str__(self) -> str: 
@@ -87,9 +55,9 @@ class Bishop(Piece):
     def possible_moves(self, board: dict[AN, Piece], coord: AN) -> list[AN]:
         coords: list[AN] = []
 
-        for diagonal_coord in coord.diagonals(): 
-            if board[diagonal_coord].player != self.player or isinstance(board[diagonal_coord], Empty): 
-                coords.append(diagonal_coord)
+        for c_coord in coord.diagonals(): 
+            if board[c_coord].player != self.player: 
+                coords.append(c_coord)
 
         return coords
     
@@ -108,7 +76,7 @@ class Queen(Piece):
         c_coords.extend(coord.diagonals())
         # check horizontal and vertical and 
         for c_coord in c_coords: 
-            if self.player != board[c_coord].player or isinstance(board[c_coord], Empty): 
+            if self.player != board[c_coord].player: 
                 coords.append(c_coord)
         
     def __str__(self) -> str: 
@@ -119,7 +87,14 @@ class Queen(Piece):
 
 class Knight(Piece):
     def possible_moves(self, board: dict[AN, Piece], coord: AN) -> list[int]:
-        pass
+        coords: list[AN] = []
+
+        for c_coord in coord.rel_coords((1, 2), (2, 1), (1, -2), (2, -1), (-1, -2), (-2, -1), (-2, 1), (-1, 2)): 
+            if board[c_coord].player != self.player: 
+                coords.append(c_coord)
+            
+        return coords
+
     def __str__(self) -> str: 
         if self._player == 0: 
             return "♞"
@@ -131,15 +106,36 @@ class Pawn(Piece):
         coords: list[AN] = []
         if self.player == 0: 
             # go forward
-            pass
+            c_coord = coord.over()
+            if isinstance(board[c_coord], Empty): 
+                coords.append(c_coord)
+
+            if coord.file == "b": 
+                c_coord = coord.over().over()
+                if isinstance(board[c_coord], Empty): 
+                    coords.append(c_coord)
+        
+            for c_coord in coord.rel_coords((1, 1),(-1, 1)): 
+                if board[c_coord].player != self.player and not isinstance(board[c_coord], Empty): 
+                    coords.append(c_coord)
         # check in front
+        else: 
+            # go backwards
+            c_coord = coord.under()
+            if isinstance(board[c_coord], Empty): 
+                coords.append(c_coord)
 
-        try: 
-            pass
-
-        except ChessNotationError: 
-            pass
-
+            if coord.file == "b": 
+                c_coord = coord.under().under()
+                if isinstance(board[c_coord], Empty): 
+                    coords.append(c_coord)
+        
+            for c_coord in coord.rel_coords((1, -1),(-1, -1)): 
+                if board[c_coord].player != self.player and not isinstance(board[c_coord], Empty): 
+                    coords.append(c_coord)
+        
+        return coords
+    
     def __str__(self) -> str: 
         if self._player == 0: 
             return "♟"
@@ -153,4 +149,3 @@ class Empty():
     
     def __str__(self) -> str: 
         return "·"
-  
