@@ -71,25 +71,111 @@ class Board:
             AN("h8"): Rook(1)
         }
 
+    def __getitem__(self, index: AN) -> Piece: 
+        return self._board[index]
+
     def move(self, coord1: str, coord2: str) -> None: 
         self._board[coord2] = self._board[coord1]
         self._board[coord1] = Empty()
 
     # check for end game
     def __str__(self) -> str: 
-        print(end="   ")
-        for file in FILES: print(file, end=" ")
-        print("\n"+"  "+"-"*16)
+        _str = "\n   "
+        for file in FILES: _str += file + " "
+        _str += "\n"+"  "+"-"*16 + "\n"
         for rank in reversed(RANKS): 
             for file in FILES: 
                 if file == "a": 
-                    print(rank-1, end=" |")
-                print(f'{self._board[AN(f"{file}{rank}")]}|', end="")
+                    _str += f"{rank} |"
+                _str += f'{self._board[AN(f"{file}{rank}")]}|'
                 if file == "h":
-                    print("\n"+"  "+"-"*16)
-                
-def check(board: dict[AN, Piece]) -> None|int: 
-    return None
+                    _str += "\n"+"  "+"-"*16 + "\n"
+        
+        return _str 
 
-def checkmate(board: dict[AN, Piece]) -> None|int:
-    return None
+def check(board: Board) -> None|int:
+    king_coord_0 = None
+    king_coord_1 = None 
+    pb_moves_player_0: list[AN] = []
+    pb_moves_player_1: list[AN] = []
+
+    for coord in board._board: 
+        if isinstance(board[coord], King): 
+            if board[coord].player == 0: 
+                king_coord_0 = coord
+            elif board[coord].player == 1: 
+                king_coord_1 = coord
+
+        else: 
+            if board[coord].player == 0: 
+                [pb_moves_player_0.append(val) for val in board[coord].possible_moves(coord, board)]
+                
+            elif board[coord].player == 1: 
+                [pb_moves_player_1.append(val) for val in board[coord].possible_moves(coord, board)]
+
+    if king_coord_0 in pb_moves_player_1: 
+        return 0
+     
+    elif king_coord_1 in pb_moves_player_0: 
+        return 1
+        
+def checkmate(board: Board) -> None|int:
+    king_coord_0 = None
+    king_coord_1 = None 
+    pb_moves_player_0: list[AN] = []
+    pb_moves_piece_and_coord_0: dict[AN, list[Piece, AN]] = {}
+    pb_moves_player_1: list[AN] = []
+    pb_moves_piece_and_coord_1: dict[AN, list[Piece, AN]] = {}
+
+    for coord in board._board: 
+        if isinstance(board[coord], King): 
+            if board[coord].player == 0: 
+                king_coord_0 = coord
+          
+
+            elif board[coord].player == 1: 
+                king_coord_1 = coord
+
+        else: 
+            if board[coord].player == 0: 
+                [pb_moves_player_0.append(val) for val in board[coord].possible_moves(coord, board)]
+                pb_moves_piece_and_coord_0[coord] = [board[coord], coord]
+
+            elif board[coord].player == 1: 
+                [pb_moves_player_1.append(val) for val in board[coord].possible_moves(coord, board)]
+                pb_moves_piece_and_coord_1[coord] = [board[coord], coord]
+    
+    # check king 0 
+    king_0_pb_moves = board[king_coord_0].possible_moves(king_coord_0, board)
+    is_checkmate = True
+    # check if any of the pieces can be moved to any of the places
+    for mv in king_0_pb_moves: 
+        if mv not in pb_moves_player_1: 
+            is_checkmate = False
+        else: 
+            if mv in pb_moves_player_0: # can block
+                is_checkmate = False
+
+            # check if can take piece 
+            if pb_moves_piece_and_coord_1[mv][1] in pb_moves_player_0: 
+                is_checkmate = False
+    
+    if is_checkmate: 
+        return 0
+      # check king 1
+    king_1_pb_moves = board[king_coord_1].possible_moves(king_coord_1, board)
+    is_checkmate = True
+    # check if any of the pieces can be moved to any of the places
+    for mv in king_1_pb_moves: 
+        if mv not in pb_moves_player_0: 
+            is_checkmate = False
+        else: 
+            if mv in pb_moves_player_1: # can block
+                is_checkmate = False
+
+            # check if can take piece 
+            if pb_moves_piece_and_coord_0[mv][1] in pb_moves_player_1: 
+                is_checkmate = False
+    
+    if is_checkmate: 
+        return 1

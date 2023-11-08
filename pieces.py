@@ -1,6 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from coords import AN, ChessNotationError
+from typing import Callable
 
 class Piece(ABC): 
     def __init__(self, player: int) -> None:
@@ -16,15 +17,15 @@ class Piece(ABC):
 
     @abstractmethod
     def __str__(self) -> str: ... 
+
     @abstractmethod
-    def possible_moves(self, board: dict[AN, Piece], coord: AN) -> list[AN]: ...
+    def possible_moves(self, coord: AN, board: dict[AN, Piece]) -> list[AN]: ...
 
 
 class King(Piece): 
-    def possible_moves(self, board: dict[AN, Piece], coord: AN) -> list[AN]:
+    def possible_moves(self, coord: AN, board: dict[AN, Piece]) -> list[AN]:
         coords: list[AN] = []
         for c_coord in coord.rel_coords((0, 1), (1,1), (-1, 1), (-1, 0), (1, 0), (0, -1), (-1,-1), (1, -1)): 
-            print(c_coord)
             if board[c_coord].player != self.player: 
                 coords.append(c_coord)
         return coords
@@ -36,15 +37,10 @@ class King(Piece):
             return "♔"
 
 class Rook(Piece):
-    def possible_moves(self, board: dict[AN, Piece], coord: AN) -> list[AN]:
+    def possible_moves(self, coord: AN, board: dict[AN, Piece], ) -> list[AN]:
         # check horizontal and vertical
-        coords: list[AN] = []
-
-        # check horozontal and diagonals
-        for c_coord in coord.horizontal().extend(coord.vertical()): 
-            if self.player != board[c_coord].player: 
-                coords.append(c_coord)
-
+        return possible_moves_horizontal(coord, board) + possible_moves_vertical(coord, board)
+    
     def __str__(self) -> str: 
         if self._player == 0: 
             return "♜"
@@ -52,14 +48,8 @@ class Rook(Piece):
             return "♖"
 
 class Bishop(Piece): 
-    def possible_moves(self, board: dict[AN, Piece], coord: AN) -> list[AN]:
-        coords: list[AN] = []
-
-        for c_coord in coord.diagonals(): 
-            if board[c_coord].player != self.player: 
-                coords.append(c_coord)
-
-        return coords
+    def possible_moves(self, coord: AN, board: dict[AN, Piece]) -> list[AN]:
+        return possible_moves_diagonals(coord, board)
     
     def __str__(self) -> str: 
         if self._player == 0: 
@@ -68,16 +58,8 @@ class Bishop(Piece):
             return "♗"
 
 class Queen(Piece):
-    def possible_moves(self, board: dict[AN, Piece], coord: AN) -> list[AN]:
-        coords: list[AN] = []
-
-        c_coords = coord.horizontal()
-        c_coords.extend(coord.vertical())
-        c_coords.extend(coord.diagonals())
-        # check horizontal and vertical and 
-        for c_coord in c_coords: 
-            if self.player != board[c_coord].player: 
-                coords.append(c_coord)
+    def possible_moves(self, coord: AN, board: dict[AN, Piece]) -> list[AN]:
+        return possible_moves_horizontal(coord, board) + possible_moves_vertical(coord, board) + possible_moves_diagonals(coord, board)
         
     def __str__(self) -> str: 
         if self._player == 0: 
@@ -86,7 +68,7 @@ class Queen(Piece):
             return "♕"
 
 class Knight(Piece):
-    def possible_moves(self, board: dict[AN, Piece], coord: AN) -> list[int]:
+    def possible_moves(self, coord: AN, board: dict[AN, Piece]) -> list[int]:
         coords: list[AN] = []
 
         for c_coord in coord.rel_coords((1, 2), (2, 1), (1, -2), (2, -1), (-1, -2), (-2, -1), (-2, 1), (-1, 2)): 
@@ -102,7 +84,7 @@ class Knight(Piece):
             return "♘"
 
 class Pawn(Piece): 
-    def possible_moves(self, board: dict[AN, Piece], coord: AN) -> list[AN]:
+    def possible_moves(self, coord: AN, board: dict[AN, Piece]) -> list[AN]:
         coords: list[AN] = []
         if self.player == 0: 
             # go forward
@@ -110,7 +92,7 @@ class Pawn(Piece):
             if isinstance(board[c_coord], Empty): 
                 coords.append(c_coord)
 
-            if coord.file == "b": 
+            if coord.rank == 2: 
                 c_coord = coord.over().over()
                 if isinstance(board[c_coord], Empty): 
                     coords.append(c_coord)
@@ -125,7 +107,7 @@ class Pawn(Piece):
             if isinstance(board[c_coord], Empty): 
                 coords.append(c_coord)
 
-            if coord.file == "b": 
+            if coord.rank == 7: 
                 c_coord = coord.under().under()
                 if isinstance(board[c_coord], Empty): 
                     coords.append(c_coord)
@@ -149,3 +131,54 @@ class Empty():
     
     def __str__(self) -> str: 
         return "·"
+
+def coord_over(coord: AN) -> AN: 
+    return coord.over()
+
+def coord_under(coord: AN) -> AN: 
+    return coord.under()
+
+def coord_left(coord: AN) -> AN: 
+    return coord.left()
+
+def coord_right(coord: AN) -> AN: 
+    return coord.right()
+
+def coord_over_right(coord: AN) -> AN:
+    return coord.over().right()
+
+def coord_over_left(coord: AN) -> AN: 
+    return coord.over().left()
+
+def coord_under_left(coord: AN) -> AN: 
+    return coord.under().left()
+
+def coord_under_right(coord: AN) -> AN: 
+    return coord.under().right()
+    
+def possible_moves_blc_piece(coord: AN, board: dict[AN, Piece], func: Callable[[AN], AN]) -> list[AN]: 
+    coords: list[AN] = []
+    try: 
+        c_coord = coord
+        while True: 
+            c_coord = func(c_coord)
+            if not isinstance(board[c_coord], Empty): 
+                if board[c_coord].player != board[coord].player: 
+                    coords.append(c_coord)
+                break
+            else: 
+                coords.append(c_coord)
+
+    except ChessNotationError: 
+        pass 
+
+    return coords
+
+def possible_moves_horizontal(coord: AN, board: dict[AN, Piece]) -> list[AN]: 
+    return possible_moves_blc_piece(coord, board, coord_left) + possible_moves_blc_piece(coord, board, coord_right)
+
+def possible_moves_vertical(coord: AN, board: dict[AN, Piece]) -> list[AN]: 
+    return possible_moves_blc_piece(coord, board, coord_over) + possible_moves_blc_piece(coord, board, coord_under)
+
+def possible_moves_diagonals(coord: AN, board: dict[AN, Piece]) -> list[AN]:
+        return possible_moves_blc_piece(coord, board, coord_over_left) + possible_moves_blc_piece(coord, board, coord_over_right) +  possible_moves_blc_piece(coord, board, coord_under_left) + possible_moves_blc_piece(coord, board, coord_under_right)

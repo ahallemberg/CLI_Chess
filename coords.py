@@ -65,7 +65,10 @@ class AN:
     @staticmethod
     def valid_notation(file: str, rank: int|None=None) -> bool: 
         if len(file) == 2: 
-            rank = int(file[1])
+            try: 
+                rank = int(file[1])
+            except ValueError:
+                return False 
             file = file[0]
         elif len(file) != 1: 
             raise ChessNotationError
@@ -109,53 +112,6 @@ class AN:
                 pass
         
         return coords
-
-    def horizontal(self) -> list[AN]: 
-        return [AN(file, self.rank) for file in FILES]
-    
-    def vertical(self) -> list[AN]: 
-        return [AN(self.file, rank) for rank in RANKS]
-    
-    def diagonal(self, topright: bool) -> list[AN]:
-        coords: list[AN] = []
-
-        if topright: 
-            try: 
-                current_coord = self
-                while True: 
-                    current_coord = current_coord.over().right()
-                    coords.append(current_coord)
-                    
-            except ChessNotationError: pass
-
-            try: 
-                current_coord = self
-                while True: 
-                    current_coord = current_coord.under().left()
-                    coords.append(current_coord)
-
-            except ChessNotationError: pass 
-        else: 
-            try: 
-                current_coord = self
-                while True: 
-                    current_coord = current_coord.over().left()
-                    coords.append(current_coord)
-                    
-            except ChessNotationError: pass
-
-            try: 
-                current_coord = self
-                while True: 
-                    current_coord = current_coord.under().right()
-                    coords.append(current_coord)
-
-            except ChessNotationError: pass 
-            
-        return coords
-
-    def diagonals(self) -> list[AN]: 
-        return self.diagonal(True).extend(self.diagonal(False))
 
     @property
     def coord(self) -> str: 
