@@ -21,8 +21,15 @@ class Piece(ABC):
     @abstractmethod
     def possible_moves(self, coord: AN, board: dict[AN, Piece]) -> list[AN]: ...
 
+    @abstractmethod
+    def value(self) -> int: ...
+    
 
 class King(Piece): 
+    @property
+    def value(self) -> int: 
+        return 1000
+    
     def possible_moves(self, coord: AN, board: dict[AN, Piece]) -> list[AN]:
         coords: list[AN] = []
         for c_coord in coord.rel_coords((0, 1), (1,1), (-1, 1), (-1, 0), (1, 0), (0, -1), (-1,-1), (1, -1)): 
@@ -37,6 +44,10 @@ class King(Piece):
             return "♔"
 
 class Rook(Piece):
+    @property 
+    def value(self) -> int:
+        return 5
+    
     def possible_moves(self, coord: AN, board: dict[AN, Piece], ) -> list[AN]:
         # check horizontal and vertical
         return possible_moves_horizontal(coord, board) + possible_moves_vertical(coord, board)
@@ -48,6 +59,10 @@ class Rook(Piece):
             return "♖"
 
 class Bishop(Piece): 
+    @property
+    def value(self) -> int:
+        return 3
+    
     def possible_moves(self, coord: AN, board: dict[AN, Piece]) -> list[AN]:
         return possible_moves_diagonals(coord, board)
     
@@ -58,6 +73,10 @@ class Bishop(Piece):
             return "♗"
 
 class Queen(Piece):
+    @property
+    def value(self) -> int:
+        return 9
+    
     def possible_moves(self, coord: AN, board: dict[AN, Piece]) -> list[AN]:
         return possible_moves_horizontal(coord, board) + possible_moves_vertical(coord, board) + possible_moves_diagonals(coord, board)
         
@@ -68,6 +87,10 @@ class Queen(Piece):
             return "♕"
 
 class Knight(Piece):
+    @property
+    def value(self) -> int:
+        return 3
+    
     def possible_moves(self, coord: AN, board: dict[AN, Piece]) -> list[int]:
         coords: list[AN] = []
 
@@ -84,6 +107,10 @@ class Knight(Piece):
             return "♘"
 
 class Pawn(Piece): 
+    @property
+    def value(self) -> int:
+        return 1
+    
     def possible_moves(self, coord: AN, board: dict[AN, Piece]) -> list[AN]:
         coords: list[AN] = []
         if self.player == 0: 
@@ -125,6 +152,10 @@ class Pawn(Piece):
             return "♙"
 
 class Empty(): 
+    @property 
+    def value(self) -> int: 
+        return 0
+    
     @property 
     def player(self) -> int: 
         return None

@@ -1,5 +1,7 @@
 from coords import AN, FILES, RANKS
 from pieces import Piece, King, Queen, Rook,  Knight, Pawn, Bishop, Empty
+from copy import deepcopy
+
 class Board: 
     def __init__(self) -> None:  
         # init 
@@ -70,7 +72,17 @@ class Board:
             AN("g8"): Knight(1),
             AN("h8"): Rook(1)
         }
+    def get_moves(self, player: int) -> list[tuple[Piece, AN]]:
+        pass
 
+    def pieces(self) -> list[Piece]: 
+        return list(self._board.values())
+    
+    def copy(self) -> 'Board': 
+        cp = Board()
+        cp._board = deepcopy(self._board)
+        return cp
+    
     def __getitem__(self, index: AN) -> Piece: 
         return self._board[index]
 
