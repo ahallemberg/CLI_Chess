@@ -136,64 +136,35 @@ def check(board: Board) -> None|int:
      
     elif king_coord_1 in pb_moves_player_0: 
         return 1
-        
-def checkmate(board: Board) -> None|int:
-    king_coord_0 = None
-    king_coord_1 = None 
-    pb_moves_player_0: list[AN] = []
-    pb_moves_piece_and_coord_0: dict[AN, list[Piece, AN]] = {}
-    pb_moves_player_1: list[AN] = []
-    pb_moves_piece_and_coord_1: dict[AN, list[Piece, AN]] = {}
 
-    for coord in board._board: 
-        if isinstance(board[coord], King): 
-            if board[coord].player == 0: 
-                king_coord_0 = coord
-          
 
-            elif board[coord].player == 1: 
-                king_coord_1 = coord
+def checkmate(board: Board) -> int|None:
+    for player in [0, 1]:
+        # Get the coordinates of the king and the possible moves for the player
+        for coord in board._board: 
+            if isinstance(board[coord], King) and board[coord].player == player: 
+                king_coord = coord
+                break
+        pb_moves_player = [val for coord in board._board if board[coord].player == player for val in board[coord].possible_moves(coord, board)]
+        king_pb_moves = board[king_coord].possible_moves(king_coord, board)
 
-        else: 
-            if board[coord].player == 0: 
-                [pb_moves_player_0.append(val) for val in board[coord].possible_moves(coord, board)]
-                pb_moves_piece_and_coord_0[coord] = [board[coord], coord]
+        # Check if the king is in check
+        if king_coord not in pb_moves_player:
+            continue
 
-            elif board[coord].player == 1: 
-                [pb_moves_player_1.append(val) for val in board[coord].possible_moves(coord, board)]
-                pb_moves_piece_and_coord_1[coord] = [board[coord], coord]
-    
-    # check king 0 
-    king_0_pb_moves = board[king_coord_0].possible_moves(king_coord_0, board)
-    is_checkmate = True
-    # check if any of the pieces can be moved to any of the places
-    for mv in king_0_pb_moves: 
-        if mv not in pb_moves_player_1: 
-            is_checkmate = False
-        else: 
-            if mv in pb_moves_player_0: # can block
-                is_checkmate = False
+        # Check if the king can move to a safe square
+        if any(mv not in pb_moves_player for mv in king_pb_moves):
+            continue
 
-            # check if can take piece 
-            if pb_moves_piece_and_coord_1[mv][1] in pb_moves_player_0: 
-                is_checkmate = False
-    
-    if is_checkmate: 
-        return 0
-      # check king 1
-    king_1_pb_moves = board[king_coord_1].possible_moves(king_coord_1, board)
-    is_checkmate = True
-    # check if any of the pieces can be moved to any of the places
-    for mv in king_1_pb_moves: 
-        if mv not in pb_moves_player_0: 
-            is_checkmate = False
-        else: 
-            if mv in pb_moves_player_1: # can block
-                is_checkmate = False
+        # Check if any piece can capture the checking piece or block the check
+        for coord in board._board:
+            if board[coord].player == player:
+                for move in board[coord].possible_moves(coord, board):
+                    if move not in pb_moves_player:
+                        return None
 
-            # check if can take piece 
-            if pb_moves_piece_and_coord_0[mv][1] in pb_moves_player_1: 
-                is_checkmate = False
-    
-    if is_checkmate: 
-        return 1
+        # If none of the above conditions are met, the player is in checkmate
+        return player
+
+    # If neither player is in checkmate
+    return None

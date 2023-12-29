@@ -6,7 +6,7 @@ from typing import Callable
 class Piece(ABC): 
     def __init__(self, player: int) -> None:
         self._player = player
-
+    
     @property 
     def player(self) -> int: 
         return self._player 
@@ -43,7 +43,11 @@ class King(Piece):
             return "♚"
         else: 
             return "♔"
-
+    
+    def __repr__(self) -> str:
+        return f"{self.__str__()}: {self._player}"
+        
+    
 class Rook(Piece):
     @property 
     def value(self) -> int:
@@ -58,6 +62,10 @@ class Rook(Piece):
             return "♜"
         else: 
             return "♖"
+    
+    def __repr__(self) -> str:
+        return f"{self.__str__()}: {self._player}"
+    
 
 class Bishop(Piece): 
     @property
@@ -72,6 +80,10 @@ class Bishop(Piece):
             return "♝"
         else: 
             return "♗"
+    
+    def __repr__(self) -> str:
+        return f"{self.__str__()}: {self._player}"
+    
 
 class Queen(Piece):
     @property
@@ -86,6 +98,10 @@ class Queen(Piece):
             return "♛"
         else: 
             return "♕"
+        
+    def __repr__(self) -> str:
+        return f"{self.__str__()}: {self._player}"
+    
 
 class Knight(Piece):
     @property
@@ -106,6 +122,10 @@ class Knight(Piece):
             return "♞"
         else: 
             return "♘"
+    
+    def __repr__(self) -> str:
+        return f"{self.__str__()}: {self._player}"
+
 
 class Pawn(Piece): 
     @property
@@ -151,6 +171,10 @@ class Pawn(Piece):
             return "♟"
         else: 
             return "♙"
+    
+    def __repr__(self) -> str:
+        return f"{self.__str__()}: {self._player}"
+
 
 class Empty(): 
     @property 

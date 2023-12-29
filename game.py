@@ -43,7 +43,7 @@ def make_player_move(board: Board, current_player: int) -> tuple[AN, AN]:
         except ChessNotationError: 
             print("Ugyldig koordinat")
 
-    
+
 def main() -> None: 
     board = Board()
     current_player = 0 
@@ -77,7 +77,7 @@ def main() -> None:
                         break
                     else: 
                         print(f"Spiller {player_in_check} er i sjakk")
-                        if checkmate() == player_in_check: 
+                        if checkmate(board) == player_in_check: 
                             print(f"Spiller {current_player} vant!")
                             break
                         current_player = 0 if current_player != 0 else 1
@@ -98,12 +98,23 @@ def main() -> None:
                     spinner = Spinner()
                     spinner.start()
                     # make bot move
-                    board.move(*engine.get_best_move(board))
+                    board.move(*engine.get_best_move(board, 2))
                     spinner.stop()
 
-                current_player = 0 if current_player != 0 else 1
+                player_in_check = check(board)
+                if player_in_check != None: 
+                    if player_in_check == current_player: 
+                        print(f"Du kan ikke gjøre et trekk som gjør at du er i sjakk. {'Du' if current_player != 0 else 'Bot'} vant!")
+                        break
+                    else: 
+                        print(f"Spiller {player_in_check} er i sjakk")
+                        if checkmate(board) == player_in_check: 
+                            print(f"Spiller {current_player} vant!")
+                            break
+                        current_player = 0 if current_player != 0 else 1
+                else: 
+                    current_player = 0 if current_player != 0 else 1
 
-                
     except ExitProgram:
         quit()
 

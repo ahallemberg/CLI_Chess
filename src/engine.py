@@ -1,26 +1,30 @@
 # chess engine based on minimax algorithm with alpha-beta pruning
 from src.board import Board, checkmate, AN
-
+from random import shuffle
 class Engine: 
     def __init__(self, player: int) -> None:
         self.player = player
     
-    def get_best_move(self, board: Board) -> tuple[AN, AN]:
+    def get_best_move(self, board: Board, depth: int) -> tuple[AN, AN]:
         """
         Gets best move for the engine using minimax algorithm with alpha-beta pruning
         """
         best_move = None
         best_eval = float('-inf')
-        for move1, move2 in board.get_moves(self.player):
+        pb_moves = board.get_moves(self.player)
+        shuffle(pb_moves)
+        for move1, move2 in pb_moves:
             board_cp = board.copy()
             board_cp.move(move1, move2)
-            eval = self.minimax(board_cp, 3, float('-inf'), float('inf'), False)
+            if checkmate(board_cp) is not None:  # Skip moves that result in checkmate
+                continue
+            eval = self.minimax(board_cp, depth, float('-inf'), float('inf'), False)
             if eval > best_eval:
                 best_eval = eval
                 best_move = (move1, move2)
         return best_move
 
-    def minimax(self, board: Board, depth: int, alpha, beta, maximizing_player: bool = True) -> int:
+    def minimax(self, board: Board, depth: int, alpha: int, beta: int, maximizing_player: bool) -> int:
         """
         Minimax algorithm with alpha-beta pruning
         """
@@ -40,7 +44,7 @@ class Engine:
             return max_eval
         else:
             min_eval = float('inf')
-            for move1, move2 in board.get_moves(self.player):
+            for move1, move2 in board.get_moves(1 if 0 == self.player else 0):
                 board_cp = board.copy()
                 board_cp.move(move1, move2)
                 eval = self.minimax(board_cp, depth - 1, alpha, beta, True)
