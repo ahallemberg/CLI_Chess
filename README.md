@@ -7,7 +7,7 @@ Because this repo uses submodules use this cmd when cloning:
 $ git clone --recurse-submodules
 ```
 
-## Start program
+## Run program
 In a python 3 environment, run the following command:
 ```bash
 $ python3 game.py
