@@ -8,6 +8,6 @@ $ git clone --recurse-submodules
 ```
 
 ## Run program
-In a python 3 environment, run the following command:
+In a python >=3.10 environment, run the following command:
 ```bash
 $ python3 game.py
