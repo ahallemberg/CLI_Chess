@@ -4,7 +4,7 @@ Play chess in the terminal against another opponent or chess bot based on minima
 ## Setup
 Because this repo uses submodules use this cmd when cloning:
 ```bash
-git clone --recurse-submodules
+$ git clone --recurse-submodules
 ```
 
 ## Start program
