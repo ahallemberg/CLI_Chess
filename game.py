@@ -12,6 +12,12 @@ def main() -> None:
     current_player = 0 
     print(f'Sjakk 1v1\nNyttig info:\n- Skriv når som helst "q" for å avslutte spillet\n- Skriv "r" når som helst for å starte på nytt')
     try: 
+        pass
+
+    except ValueError: 
+        pass
+    
+    try: 
         while True: 
             print(board)
             print(f'{"Hvit sin tur" if current_player == 0 else "Svart sin tur"}')

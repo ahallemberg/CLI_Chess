@@ -72,8 +72,14 @@ class Board:
             AN("g8"): Knight(1),
             AN("h8"): Rook(1)
         }
-    def get_moves(self, player: int) -> list[tuple[Piece, AN]]:
-        pass
+    def get_moves(self, player: int) -> list[tuple[AN, AN]]:
+        _list = []
+        for coord in self._board: 
+            if self._board[coord].player == player: 
+                for move in self._board[coord].possible_moves(coord, self): 
+                    _list.append((coord, move))
+        
+        return _list
 
     def pieces(self) -> list[Piece]: 
         return list(self._board.values())

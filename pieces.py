@@ -22,8 +22,9 @@ class Piece(ABC):
     def possible_moves(self, coord: AN, board: dict[AN, Piece]) -> list[AN]: ...
 
     @abstractmethod
+    @property
     def value(self) -> int: ...
-    
+
 
 class King(Piece): 
     @property
