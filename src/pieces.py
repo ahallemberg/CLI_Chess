@@ -1,6 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from coords import AN, ChessNotationError
+from src.coords import AN, ChessNotationError
 from typing import Callable
 
 class Piece(ABC): 
@@ -21,8 +21,8 @@ class Piece(ABC):
     @abstractmethod
     def possible_moves(self, coord: AN, board: dict[AN, Piece]) -> list[AN]: ...
 
-    @abstractmethod
     @property
+    @abstractmethod
     def value(self) -> int: ...
 
 

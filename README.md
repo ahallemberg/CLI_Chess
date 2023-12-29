@@ -3,4 +3,5 @@ Play chess in the terminal against another opponent or chess bot based on minima
 
 ## Start program
 In a python 3 environment, run the following command:
-```python3 game.py
+```bash
+$ python3 game.py

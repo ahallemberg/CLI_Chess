@@ -1,5 +1,5 @@
-from board import Board, check, checkmate
-from coords import RANKS, FILES, AN, ChessNotationError
+from src.board import Board, check, checkmate
+from src.coords import AN, ChessNotationError
 from pylibs.uinput import Input, Init, ExitProgram
 
 class RestartGameException(Exception): 
@@ -16,7 +16,7 @@ def main() -> None:
 
     except ValueError: 
         pass
-    
+
     try: 
         while True: 
             print(board)

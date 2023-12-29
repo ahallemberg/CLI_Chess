@@ -1,5 +1,5 @@
 # chess engine based on minimax algorithm with alpha-beta pruning
-from board import Board, check, checkmate, AN
+from src.board import Board, check, checkmate, AN
 
 class Engine: 
     def __init__(self, player: int) -> None:

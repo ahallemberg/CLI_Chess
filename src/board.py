@@ -1,5 +1,5 @@
-from coords import AN, FILES, RANKS
-from pieces import Piece, King, Queen, Rook,  Knight, Pawn, Bishop, Empty
+from src.coords import AN, FILES, RANKS
+from src.pieces import Piece, King, Queen, Rook,  Knight, Pawn, Bishop, Empty
 from copy import deepcopy
 
 class Board: 
