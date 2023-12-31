@@ -4,10 +4,13 @@ from src.engine import Engine
 from src.spinner import Spinner
 from pylibs.uinput import Input, Init, ExitProgram
 
+SEARCH_DEPTH = 3
+
 class RestartGameException(Exception): 
     pass
 
 Init.setCommands({"q": ExitProgram, "r": RestartGameException})
+
 
 def make_player_move(board: Board, current_player: int) -> tuple[AN, AN]:
     while True: 
@@ -35,7 +38,19 @@ def make_player_move(board: Board, current_player: int) -> tuple[AN, AN]:
                 continue
             
             if coord2 in pb_moves: 
+                # check if move results in check
+                board_cp = board.copy()
+                board_cp.move(coord1, coord2)
+                if check(board_cp) == current_player: 
+                    print("Du kan ikke gjøre et trekk som gjør at du er i sjakk...")
+                    continue
                 board.move(coord1, coord2)
+
+                # check if move results in checkmate
+                if checkmate(board) != None: 
+                    print(board)
+                    print(f"Spiller {checkmate(board)} vant!")
+                    raise RestartGameException
                 break
             else: 
                 print(f"Dette er ikke et gyldig trekk...")
@@ -69,20 +84,7 @@ def main() -> None:
                 print(f'{"Hvit sin tur" if current_player == 0 else "Svart sin tur"}')
 
                 make_player_move(board, current_player)
-
-                player_in_check = check(board)
-                if player_in_check != None: 
-                    if player_in_check == current_player: 
-                        print(f"Du kan ikke gjøre et trekk som gjør at du er i sjakk. Spiller {0 if current_player != 0 else 1} vant!")
-                        break
-                    else: 
-                        print(f"Spiller {player_in_check} er i sjakk")
-                        if checkmate(board) == player_in_check: 
-                            print(f"Spiller {current_player} vant!")
-                            break
-                        current_player = 0 if current_player != 0 else 1
-                else: 
-                    current_player = 0 if current_player != 0 else 1
+                current_player = 0 if current_player != 0 else 1
 
         elif opponent == 1: # game logic for playing against a bot
             engine = Engine(1)
@@ -98,22 +100,23 @@ def main() -> None:
                     spinner = Spinner()
                     spinner.start()
                     # make bot move
-                    board.move(*engine.get_best_move(board, 2))
+                    board.move(*engine.get_best_move(board,SEARCH_DEPTH))
+                   
+                    ## check for checkmate
+                    is_checkmate = checkmate(board)
+                    if is_checkmate == 0:
+                        print(board) 
+                        print("Bot vant!")
+                        raise RestartGameException
+                    
+                    elif is_checkmate == 1:
+                        print(board) 
+                        print("Du vant!")
+                        raise RestartGameException
+
                     spinner.stop()
 
-                player_in_check = check(board)
-                if player_in_check != None: 
-                    if player_in_check == current_player: 
-                        print(f"Du kan ikke gjøre et trekk som gjør at du er i sjakk. {'Du' if current_player != 0 else 'Bot'} vant!")
-                        break
-                    else: 
-                        print(f"Spiller {player_in_check} er i sjakk")
-                        if checkmate(board) == player_in_check: 
-                            print(f"Spiller {current_player} vant!")
-                            break
-                        current_player = 0 if current_player != 0 else 1
-                else: 
-                    current_player = 0 if current_player != 0 else 1
+                current_player = 0 if current_player != 0 else 1
 
     except ExitProgram:
         quit()
@@ -126,4 +129,3 @@ if __name__ == "__main__":
     main()
 else: 
     print(f"{__file__} cannot be imported")
-

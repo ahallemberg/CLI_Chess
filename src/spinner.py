@@ -4,7 +4,7 @@ import time
 import sys
 
 class Spinner: 
-    def __init__(self, delay: float = 0.2) -> None:
+    def __init__(self, delay: float = 0.1) -> None:
         self.spinner = itertools.cycle('/-\|')
         self.delay = delay
         self.busy = False

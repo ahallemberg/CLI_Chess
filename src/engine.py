@@ -1,6 +1,9 @@
 # chess engine based on minimax algorithm with alpha-beta pruning
-from src.board import Board, checkmate, AN
+from src.board import Board, checkmate, AN, check, King
 from random import shuffle
+
+opponent = lambda player: 1 if 0 == player else 0
+
 class Engine: 
     def __init__(self, player: int) -> None:
         self.player = player
@@ -16,7 +19,7 @@ class Engine:
         for move1, move2 in pb_moves:
             board_cp = board.copy()
             board_cp.move(move1, move2)
-            if checkmate(board_cp) is not None:  # Skip moves that result in checkmate
+            if check(board_cp) == self.player: # if move results in check for self, skip move
                 continue
             eval = self.minimax(board_cp, depth, float('-inf'), float('inf'), False)
             if eval > best_eval:
@@ -35,6 +38,8 @@ class Engine:
             max_eval = float('-inf')
             for move1, move2 in board.get_moves(self.player):
                 board_cp = board.copy()
+                if isinstance(board_cp[move2], King) and board_cp[move2].player == opponent(self.player):  # if move results in king being taken, return min eval
+                    return float('inf')
                 board_cp.move(move1, move2)
                 eval = self.minimax(board_cp, depth - 1, alpha, beta, False)
                 max_eval = max(max_eval, eval)
@@ -44,8 +49,11 @@ class Engine:
             return max_eval
         else:
             min_eval = float('inf')
-            for move1, move2 in board.get_moves(1 if 0 == self.player else 0):
+            for move1, move2 in board.get_moves(opponent(self.player)):
                 board_cp = board.copy()
+                if isinstance(board_cp[move2], King) and board_cp[move2].player == self.player:  # if move results in king being taken, return min eval
+                    return float('-inf')
+                 
                 board_cp.move(move1, move2)
                 eval = self.minimax(board_cp, depth - 1, alpha, beta, True)
                 min_eval = min(min_eval, eval)
